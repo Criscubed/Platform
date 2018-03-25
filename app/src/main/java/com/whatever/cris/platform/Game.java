@@ -1,11 +1,13 @@
 package com.whatever.cris.platform;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.whatever.cris.platform.Entities.Entity;
+import com.whatever.cris.platform.Input.InputManager;
 import com.whatever.cris.platform.levels.LevelManager;
 
 import java.util.ArrayList;
@@ -31,24 +33,34 @@ public class Game implements Runnable, SurfaceHolder.Callback {
     private LevelManager mLevel = null;
     private Viewport mCamera = null;
     private ArrayList<Entity> mVisibleEntities = new ArrayList<>();
+    private InputManager mControls = null;
+    PointF mCameraPos = new PointF(0f, 0f);
+    float mScrollSpeed = 2.0f;
 
-    public Game(Context context, final GameView view) {
+    public Game(Context context, final GameView view, final InputManager inputs) {
         mView = view;
         mainActivity = (MainActivity) context;
+        mControls = inputs;
         Entity.mEngine = this;
         SurfaceHolder holder = mView.getHolder();
         holder.addCallback(this);
         holder.setFixedSize(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
         mCamera = new Viewport(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT,
                 METERS_TO_SHOW_X, METERS_TO_SHOW_y);
-        mLevel = new LevelManager();
+       loadLevel();
         Log.d(TAG, "Game Created!");
     }
 
     public Context getAppContext(){
         return mainActivity.getApplicationContext();
     }
-
+    public InputManager getControls(){return mControls;}
+    public float getWorldHeight(){
+        return mLevel.mLevelHeight;
+    }
+    public float getWorldWidth(){
+        return mLevel.mLevelWidth;
+    }
     public float screenToWorldX(final float pixelDistance){
         return (float) pixelDistance / mCamera.getPixelsPerMeterX();
     }
@@ -61,16 +73,18 @@ public class Game implements Runnable, SurfaceHolder.Callback {
     public int worldToScreenY(final float worldDistance){
         return (int) (worldDistance * mCamera.getPixelsPerMeterY());
     }
+
+    public static final long SECONDS_TO_NANOS = 1000000000;
+    public static final float NANOS_TO_SECONDS = 1.0f/SECONDS_TO_NANOS;
+
     @Override
     public void run() {
         long lastFrame = System.nanoTime();
         while (mIsRunning){
-            final float deltaTime = TimeUnit.NANOSECONDS.toSeconds(
-                    System.nanoTime()-lastFrame);
-            input();
+            final float deltaTime = (System.nanoTime()-lastFrame) * NANOS_TO_SECONDS;
+            lastFrame = System.nanoTime();
             update(deltaTime);
             render(mVisibleEntities, mCamera);
-            lastFrame = System.nanoTime();
         }
     }
 
@@ -78,7 +92,9 @@ public class Game implements Runnable, SurfaceHolder.Callback {
 
     }
     private void update(final float deltaTime){
-        mCamera.lookAt(4, 3);
+        mControls.update(deltaTime);
+        mCamera.lookAt(mLevel.mPlayer.x(), mLevel.mPlayer.y());
+        mLevel.update(deltaTime);
         buildVisibleSet();
     }
     private void render(ArrayList<Entity> visibleSet, final Viewport camera){
@@ -95,11 +111,13 @@ public class Game implements Runnable, SurfaceHolder.Callback {
 
     //On the UI Thread
     public void onResume(){
+        mControls.onResume();
         mIsRunning = true;
         mGameThread = new Thread(this);
 
     }
     public void onPause(){
+        mControls.onPause();
         mIsRunning = false;
         while(mGameThread.getState() != Thread.State.TERMINATED) {
             try {
@@ -118,9 +136,16 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         if(mView != null){
             mView.getHolder().removeCallback(this);
         }
+        mControls.onDestroy();
         Entity.mEngine = null;
     }
 
+    private void loadLevel(){
+        mLevel = new LevelManager();
+        mCameraPos.x = 0f;
+        mCameraPos.y = 0f;
+        mCamera.lookAt(mCameraPos);
+    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {

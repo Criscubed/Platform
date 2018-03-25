@@ -6,6 +6,8 @@ package com.whatever.cris.platform.levels;
 
 public abstract class LevelData {
     public static final String NULL_SPRITE = "cratered";
+    public static final String PLAYER = "left1";
+
     public static final int NO_TIlE = 0;
     int[][] mTiles;
     int mHeight;

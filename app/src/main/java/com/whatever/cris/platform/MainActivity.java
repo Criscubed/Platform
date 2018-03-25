@@ -4,6 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.whatever.cris.platform.Input.InputManager;
+import com.whatever.cris.platform.Input.TouchController;
+import com.whatever.cris.platform.Input.VirtualJoystick;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -12,9 +16,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GameView view = new GameView(this);
-        setContentView(view);
-        mGame = new Game(this, view);
+        setContentView(R.layout.activity_main);
+        GameView view = (GameView) findViewById(R.id.gameView);
+        InputManager input = new VirtualJoystick(findViewById(R.id.virtual_joystick));
+        mGame = new Game(this, view, input);
 
     }
 

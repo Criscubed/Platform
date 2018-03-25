@@ -4,8 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PointF;
+import android.util.Log;
 
 import com.whatever.cris.platform.Game;
+import com.whatever.cris.platform.Utils.BitmapPool;
 import com.whatever.cris.platform.Utils.BitmapUtils;
 
 /**
@@ -21,8 +24,8 @@ public class Entity {
     public float y = DEFAULT_LOCATION;
     public float width = DEFAULT_DIMENSION;
     public float height = DEFAULT_DIMENSION;
-
     public static Game mEngine;
+
     Bitmap mBitmap = null; //TODO bitmap pool
     private String mSprite;
 
@@ -30,20 +33,29 @@ public class Entity {
         init(spriteName, DEFAULT_DIMENSION, DEFAULT_DIMENSION);
     }
 
-    private void init(final String spriteName, float width, float height){
+    public Entity(final String spriteName, float width, float height){
+        init(spriteName, width, height);
+    }
+
+    private void init(final String spriteName,final float width,final float height) {
         mSprite = spriteName;
         this.width = width;
         this.height = height;
-        final int pixelWidth = mEngine.worldToScreenX(width);
-        final int pixelHeight = mEngine.worldToScreenY(height);
-        try {
-            mBitmap = BitmapUtils.loadScaledBitmap(mEngine.getAppContext(),
-                    spriteName, pixelWidth, pixelHeight);
-        } catch (Exception e) {
-            throw new AssertionError("this bitmap dont work:" + spriteName);
+        if (mSprite.isEmpty()) {
+            return;
         }
+        loadSprite();
     }
 
+    private void loadSprite(){
+        if(mBitmap != null){
+            BitmapPool.remove(mBitmap);
+        }
+        mBitmap = BitmapPool.createBitmap(mEngine, mSprite, width, height);
+        if(mBitmap == null){
+            Log.e(TAG, "Failed to create bitmap: " + mSprite);
+        }
+    }
     public void update(final float deltaTime){
 
     }
@@ -64,10 +76,40 @@ public class Entity {
                 || b.bottom() < a.top());
     }
 
-    public void destroy(){
-        if(mBitmap != null){
-            mBitmap.recycle();
+    //SAT intersection test. http://www.metanetsoftware.com/technique/tutorialA.html
+    //returns true on intersection, and sets the least intersecting axis in overlap
+    static final PointF overlap = new PointF(0,0); //Q&D PointF pool for collision detection. Assumes single threading.
+    @SuppressWarnings("UnusedReturnValue")
+    static boolean getOverlap(final Entity a, final Entity b, final PointF overlap) {
+        overlap.x = 0.0f;
+        overlap.y = 0.0f;
+        final float centerDeltaX = a.centerX() - b.centerX();
+        final float halfWidths = (a.width() + b.width()) * 0.5f;
+        float dx = Math.abs(centerDeltaX);//cache the abs, we need it twice
+
+        if (dx > halfWidths) return false; //no overlap on x == no collision
+
+        final float centerDeltaY = a.centerY() - b.centerY();
+        final float halfHeights = (a.height() + b.height()) * 0.5f;
+        float dy = Math.abs(centerDeltaY);
+
+        if (dy > halfHeights) return false; //no overlap on y == no collision
+
+        dx = halfWidths - dx; //overlap on x
+        dy = halfHeights - dy; //overlap on y
+        if (dy < dx) {
+            overlap.y = (centerDeltaY < 0) ? -dy : dy;
+        } else if (dy > dx) {
+            overlap.x = (centerDeltaX < 0) ? -dx : dx;
+        } else {
+            overlap.x = (centerDeltaX < 0) ? -dx : dx;
+            overlap.y = (centerDeltaY < 0) ? -dy : dy;
         }
+        return true;
+    }
+
+    public void destroy(){
+        mBitmap = null;
     }
 
     public float x(){return x;}

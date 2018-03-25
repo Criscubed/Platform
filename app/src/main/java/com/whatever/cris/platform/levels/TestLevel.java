@@ -8,7 +8,6 @@ import android.util.SparseArray;
 
 public class TestLevel extends LevelData {
     private final SparseArray<String> mTileIdToSpriteName = new SparseArray<>();
-    public static final String PLAYER = "left1";
     public TestLevel(){
         mTileIdToSpriteName.put(0, "background");
         mTileIdToSpriteName.put(1, PLAYER);
@@ -18,8 +17,8 @@ public class TestLevel extends LevelData {
 
         mTiles = new int[][]{
                 {0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0},
                 {0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0},
                 {0,3,2,2,2,4,0},
                 {0,0,0,0,0,0,0}
         };
