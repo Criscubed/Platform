@@ -2,6 +2,7 @@ package com.whatever.cris.platform.Entities;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 
 import com.whatever.cris.platform.Game;
@@ -15,11 +16,11 @@ public class Entity {
 
     private static final String TAG = "Entity";
     private  static final float DEFAULT_LOCATION = 0f;
-    private static final float DEFAULT_DIMENSION = 0f;
+    private static final float DEFAULT_DIMENSION = 1f;
     public float x = DEFAULT_LOCATION;
     public float y = DEFAULT_LOCATION;
-    public float width = DEFAULT_LOCATION;
-    public float height = DEFAULT_LOCATION;
+    public float width = DEFAULT_DIMENSION;
+    public float height = DEFAULT_DIMENSION;
 
     public static Game mEngine;
     Bitmap mBitmap = null; //TODO bitmap pool
@@ -33,19 +34,36 @@ public class Entity {
         mSprite = spriteName;
         this.width = width;
         this.height = height;
-        int pixelWidth = (int) (width*100f);
-        int pixelheight = (int) (height*100f);
+        final int pixelWidth = mEngine.worldToScreenX(width);
+        final int pixelHeight = mEngine.worldToScreenY(height);
         try {
             mBitmap = BitmapUtils.loadScaledBitmap(mEngine.getAppContext(),
-                    spriteName, pixelWidth, 0);
+                    spriteName, pixelWidth, pixelHeight);
         } catch (Exception e) {
             throw new AssertionError("this bitmap dont work:" + spriteName);
         }
     }
 
-    public void render(final Canvas canvas, final Paint paint){
-        canvas.drawBitmap(mBitmap, x, y, paint);
+    public void update(final float deltaTime){
+
     }
+
+    public void render(final Canvas canvas, final Paint paint, final Matrix transform){
+        canvas.drawBitmap(mBitmap, transform, paint);
+    }
+
+    public boolean isColliding(Entity that){
+        return Entity.intersectsAABB(this, that);
+    }
+    public void onCollision(Entity e){
+    }
+    public static boolean intersectsAABB(Entity a, Entity b){
+        return !(a.right() < b.left()
+                || b.right() < a.left()
+                || a.bottom() < b.top()
+                || b.bottom() < a.top());
+    }
+
     public void destroy(){
         if(mBitmap != null){
             mBitmap.recycle();

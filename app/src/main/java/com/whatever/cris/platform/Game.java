@@ -9,6 +9,7 @@ import com.whatever.cris.platform.Entities.Entity;
 import com.whatever.cris.platform.levels.LevelManager;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -48,19 +49,36 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         return mainActivity.getApplicationContext();
     }
 
+    public float screenToWorldX(final float pixelDistance){
+        return (float) pixelDistance / mCamera.getPixelsPerMeterX();
+    }
+    public float screenToWorldY(final float pixelDistance){
+        return (float) pixelDistance / mCamera.getPixelsPerMeterY();
+    }
+    public int worldToScreenX(final float worldDistance){
+        return (int) (worldDistance * mCamera.getPixelsPerMeterX());
+    }
+    public int worldToScreenY(final float worldDistance){
+        return (int) (worldDistance * mCamera.getPixelsPerMeterY());
+    }
     @Override
     public void run() {
+        long lastFrame = System.nanoTime();
         while (mIsRunning){
+            final float deltaTime = TimeUnit.NANOSECONDS.toSeconds(
+                    System.nanoTime()-lastFrame);
             input();
-            update();
+            update(deltaTime);
             render(mVisibleEntities, mCamera);
+            lastFrame = System.nanoTime();
         }
     }
 
     private void input(){
 
     }
-    private void update(){
+    private void update(final float deltaTime){
+        mCamera.lookAt(4, 3);
         buildVisibleSet();
     }
     private void render(ArrayList<Entity> visibleSet, final Viewport camera){

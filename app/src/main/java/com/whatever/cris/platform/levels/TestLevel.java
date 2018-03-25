@@ -7,14 +7,14 @@ import android.util.SparseArray;
  */
 
 public class TestLevel extends LevelData {
-    private final SparseArray<String> mTileIdtoSpriteName = new SparseArray<>();
+    private final SparseArray<String> mTileIdToSpriteName = new SparseArray<>();
     public static final String PLAYER = "left1";
     public TestLevel(){
-        mTileIdtoSpriteName.put(0, "background");
-        mTileIdtoSpriteName.put(1, PLAYER);
-        mTileIdtoSpriteName.put(2, "square_snow");
-        mTileIdtoSpriteName.put(3, "upleft");
-        mTileIdtoSpriteName.put(4, "upright");
+        mTileIdToSpriteName.put(0, "background");
+        mTileIdToSpriteName.put(1, PLAYER);
+        mTileIdToSpriteName.put(2, "square_snow");
+        mTileIdToSpriteName.put(3, "upleft");
+        mTileIdToSpriteName.put(4, "upright");
 
         mTiles = new int[][]{
                 {0,0,0,0,0,0,0},
@@ -29,7 +29,7 @@ public class TestLevel extends LevelData {
 
     @Override
     public String getSpriteName(int tileType) {
-        final String fileName = mTileIdtoSpriteName.get(tileType);
+        final String fileName = mTileIdToSpriteName.get(tileType);
         if(fileName != null){
             return fileName;
         }

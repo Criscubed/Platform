@@ -3,7 +3,9 @@ package com.whatever.cris.platform;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,6 +24,8 @@ public class GameView extends SurfaceView {
     private SurfaceHolder mHolder;
     private Paint mPaint = new Paint();
     private Canvas mCanvas = null;
+    private Matrix mTranform = new Matrix();
+    private Point mScreenCoord = new Point();
 
     public GameView(Context context) {
         super(context);
@@ -52,8 +56,11 @@ public class GameView extends SurfaceView {
             mCanvas.drawColor(BG_COLOR);
 
             for (final Entity e : visibleEntities) {
-                //camera.worldToScreen(e, );
-                e.render(mCanvas, mPaint);
+                camera.worldToScreen(e, mScreenCoord);
+                mTranform.reset();
+                mTranform.postTranslate(mScreenCoord.x, mScreenCoord.y);
+
+                e.render(mCanvas, mPaint, mTranform );
             }
         } finally {
             if(mCanvas != null) {
