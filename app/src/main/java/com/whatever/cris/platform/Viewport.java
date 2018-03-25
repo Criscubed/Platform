@@ -6,6 +6,8 @@ import android.graphics.RectF;
 
 import com.whatever.cris.platform.Entities.Entity;
 
+import java.util.Locale;
+
 /**
  * Created by Cris on 3/25/2018.
  */
@@ -113,5 +115,9 @@ public class Viewport {
         final float top  = (mLookAt.y - mHalfDistY);
         return (bounds.left < right && bounds.right > left)
                 && (bounds.top < bottom && bounds.bottom > top);
+    }
+    @Override
+    public String toString(){
+        return String.format(Locale.getDefault(),"Viewport [%dpx, %dpx / %.1fm, %.1fm]", mScreenWidth, mScreenHeight, mMetersToShowX, mMetersToShowY);
     }
 }

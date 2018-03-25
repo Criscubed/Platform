@@ -54,7 +54,6 @@ public class GameView extends SurfaceView {
         }
         try {
             mCanvas.drawColor(BG_COLOR);
-
             for (final Entity e : visibleEntities) {
                 camera.worldToScreen(e, mScreenCoord);
                 mTranform.reset();
@@ -62,6 +61,7 @@ public class GameView extends SurfaceView {
 
                 e.render(mCanvas, mPaint, mTranform );
             }
+            DebugTextRenderer.render(mCanvas, camera, mPaint);
         } finally {
             if(mCanvas != null) {
                 mHolder.unlockCanvasAndPost(mCanvas);

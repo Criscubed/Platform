@@ -13,7 +13,10 @@ public class EntityFactory {
         Entity e = null;
         if(sprite.equalsIgnoreCase(LevelData.PLAYER)){
             e = new Player(sprite);
-        } else {
+        } else if(sprite.equalsIgnoreCase(LevelData.ENEMY1)
+                || sprite.equalsIgnoreCase(LevelData.ENEMY2)) {
+            e = new Enemy(sprite);
+        } else{
             e = new Entity(sprite);
         }
         e.setPosition(x, y);

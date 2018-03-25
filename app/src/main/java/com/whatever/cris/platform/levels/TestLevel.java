@@ -14,12 +14,14 @@ public class TestLevel extends LevelData {
         mTileIdToSpriteName.put(2, "square_snow");
         mTileIdToSpriteName.put(3, "upleft");
         mTileIdToSpriteName.put(4, "upright");
+        mTileIdToSpriteName.put(5, ENEMY1);
+        mTileIdToSpriteName.put(6, ENEMY2);
 
         mTiles = new int[][]{
                 {0,0,0,0,0,0,0},
                 {0,0,0,1,0,0,0},
                 {0,0,0,0,0,0,0},
-                {0,3,2,2,2,4,0},
+                {5,3,2,2,2,4,6},
                 {0,0,0,0,0,0,0}
         };
         updateLevelDimensions();

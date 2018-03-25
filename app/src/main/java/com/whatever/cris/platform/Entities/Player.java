@@ -4,7 +4,9 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
+
 import com.whatever.cris.platform.Input.InputManager;
+import com.whatever.cris.platform.Utils.BitmapPool;
 
 /**
  * Created by Cris on 3/25/2018.
@@ -17,30 +19,39 @@ public class Player extends DynamicEntity {
     private static final float PLAYER_RUN_SPEED = 6f;
     private static final float PLAYER_JUMP_FORCE = -(GRAVITATIONAL_ACCELERATION/2f);
     private static final float MIN_INPUT_TO_TURN = 0.05f;
+    private static final int INVINCIBILITY = 20;
     private final int LEFT = 1;
     private final int RIGHT = -1;
     private int mFacing = LEFT;
+    private int mInvincibility;
+
+
+
 
     public Player(String spriteName) {
         super(spriteName, PLAYER_WIDTH, PLAYER_HEIGHT);
+
     }
 
     @Override
     public void update(float deltaTime) {
         final InputManager controls = mEngine.getControls();
         final float direction = controls.mHorizontalFactor;
-        mVelocity.x = direction * PLAYER_RUN_SPEED;
+        mTargetspeed.x = direction * PLAYER_RUN_SPEED;
         updateFacingDirection(direction);
         if(controls.mIsJumping && mIsOnGround){
             mVelocity.y = PLAYER_JUMP_FORCE;
             mIsOnGround = false;
             //TODO onGameEvent
         }
+        if(mInvincibility > 0){
+            mInvincibility--;
+        }
         super.update(deltaTime);
     }
 
     private void updateFacingDirection(final float controlDir){
-        if(Math.abs(controlDir) < MIN_INPUT_TO_TURN){ return};
+        if(Math.abs(controlDir) < MIN_INPUT_TO_TURN){ return;}
         if(controlDir < 0){ mFacing = LEFT;}
         else if(controlDir > 0){mFacing = RIGHT;}
     }
@@ -52,6 +63,19 @@ public class Player extends DynamicEntity {
             final float offset = mEngine.worldToScreenX(width);
             transform.postTranslate(offset, 0f);
         }
-        super.render(canvas, paint, transform);
+        if(mInvincibility == 0 || mInvincibility % 5 != 0) {
+            super.render(canvas, paint, transform);
+        }
+    }
+
+    @Override
+    public void onCollision(Entity e) {
+        super.onCollision(e);
+        if(mInvincibility == 0) {
+            if (e instanceof Enemy) {
+                mInvincibility = INVINCIBILITY;
+                mEngine.dropHealth();
+            }
+        }
     }
 }

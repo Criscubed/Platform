@@ -47,10 +47,19 @@ public class Entity {
         loadSprite();
     }
 
+    public void changeSprite(String sprite){
+        mSprite = sprite;
+        if (mSprite.isEmpty()) {
+            return;
+        }
+        loadSprite();
+    }
     private void loadSprite(){
+        /*
         if(mBitmap != null){
             BitmapPool.remove(mBitmap);
         }
+        */
         mBitmap = BitmapPool.createBitmap(mEngine, mSprite, width, height);
         if(mBitmap == null){
             Log.e(TAG, "Failed to create bitmap: " + mSprite);

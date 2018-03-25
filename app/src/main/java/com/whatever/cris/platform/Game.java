@@ -1,17 +1,16 @@
 package com.whatever.cris.platform;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 
 import com.whatever.cris.platform.Entities.Entity;
 import com.whatever.cris.platform.Input.InputManager;
 import com.whatever.cris.platform.levels.LevelManager;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -23,8 +22,9 @@ public class Game implements Runnable, SurfaceHolder.Callback {
     private static final String TAG = "Game";
     private static final float METERS_TO_SHOW_X = 16f;
     private static final float METERS_TO_SHOW_y = 0f;
-    private static final int FRAMEBUFFER_WIDTH = 1280;
-    private static final int FRAMEBUFFER_HEIGHT = 720;
+    private static final float SCALE_FACTOR = 0.5f;
+    private final int screenWidth;
+    private final int screenHeight;
 
     private GameView mView;
     private MainActivity mainActivity;
@@ -35,21 +35,26 @@ public class Game implements Runnable, SurfaceHolder.Callback {
     private ArrayList<Entity> mVisibleEntities = new ArrayList<>();
     private InputManager mControls = null;
     PointF mCameraPos = new PointF(0f, 0f);
-    float mScrollSpeed = 2.0f;
 
     public Game(Context context, final GameView view, final InputManager inputs) {
         mView = view;
         mainActivity = (MainActivity) context;
+        Point size;
+        size = mainActivity.retrieveWidthAndHeight();
+        screenWidth = (int)(size.x * SCALE_FACTOR);
+        screenHeight = (int)(size.y * SCALE_FACTOR);
+        //Log.d(TAG, "Screen Width:" + screenWidth + " Screen Height: " + screenHeight);
         mControls = inputs;
         Entity.mEngine = this;
         SurfaceHolder holder = mView.getHolder();
         holder.addCallback(this);
-        holder.setFixedSize(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
-        mCamera = new Viewport(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT,
+        holder.setFixedSize((int)(screenWidth),(int)(screenHeight));
+        mCamera = new Viewport(screenWidth, screenHeight,
                 METERS_TO_SHOW_X, METERS_TO_SHOW_y);
        loadLevel();
         Log.d(TAG, "Game Created!");
     }
+
 
     public Context getAppContext(){
         return mainActivity.getApplicationContext();
@@ -96,6 +101,14 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         mCamera.lookAt(mLevel.mPlayer.x(), mLevel.mPlayer.y());
         mLevel.update(deltaTime);
         buildVisibleSet();
+        DebugTextRenderer.CAMERA_INFO = mCamera.toString();
+        DebugTextRenderer.PLAYER_POSITION.x = mLevel.mPlayer.x;
+        DebugTextRenderer.PLAYER_POSITION.y = mLevel.mPlayer.y;
+        DebugTextRenderer.PLAYER_VEL.x = mLevel.mPlayer.mVelocity.x;
+        DebugTextRenderer.PLAYER_VEL.y = mLevel.mPlayer.mVelocity.y;
+        DebugTextRenderer.TOTAL_OBJECT_COUNT = mLevel.mEntities.size();
+        DebugTextRenderer.VISIBLE_OBJECTS = mVisibleEntities.size();
+        DebugTextRenderer.FRAMERATE = 0;
     }
     private void render(ArrayList<Entity> visibleSet, final Viewport camera){
         mView.render(visibleSet, camera);
@@ -168,5 +181,8 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         Log.d(TAG, "surfaceDestroyed");
     }
 
+    public void dropHealth(){
+        mLevel.dropHealth();
+    }
 
 }

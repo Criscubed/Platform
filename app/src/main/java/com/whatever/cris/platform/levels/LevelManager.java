@@ -2,6 +2,7 @@ package com.whatever.cris.platform.levels;
 
 import com.whatever.cris.platform.Entities.Entity;
 import com.whatever.cris.platform.Entities.EntityFactory;
+import com.whatever.cris.platform.Entities.Health;
 import com.whatever.cris.platform.Entities.Player;
 import com.whatever.cris.platform.Utils.BitmapPool;
 
@@ -18,11 +19,31 @@ public class LevelManager {
     public final ArrayList<Entity> mEntitiesToRemove = new ArrayList<>();
 
     public Player mPlayer = null;
+    public Health h1 = null;
+    public Health h2 = null;
+    public Health h3 = null;
+    public int totalHealth = 0;
     public int mLevelWidth = 0;
     public int mLevelHeight = 0;
 
     public  LevelManager(){
         loadMapAssets(new TestLevel());
+        totalHealth = 3;
+    }
+
+    public void dropHealth(){
+        totalHealth--;
+        switch (totalHealth){
+            case 2:
+                h3.changeSprite(Health.DED);
+                break;
+            case 1:
+                h2.changeSprite(Health.DED);
+                break;
+            case 0:
+                h1.changeSprite(Health.DED);
+                break;
+        }
     }
 
     public void update(final float deltaTime){
@@ -89,6 +110,12 @@ public class LevelManager {
             }
         }
         mPlayer = findPlayerInstance();
+        h1 = new Health(mPlayer, 1, -1);
+        h2 = new Health(mPlayer, 0, -1);
+        h3 = new Health(mPlayer, -1, -1);
+        mEntities.add(h1);
+        mEntities.add(h2);
+        mEntities.add(h3);
     }
     private Player findPlayerInstance(){
         for(Entity e : mEntities){
