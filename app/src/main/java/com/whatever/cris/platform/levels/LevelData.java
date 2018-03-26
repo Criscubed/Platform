@@ -9,6 +9,7 @@ public abstract class LevelData {
     public static final String PLAYER = "left1";
     public static final String ENEMY1 = "enemy_beige";
     public static final String ENEMY2 = "enemy_iron";
+    public static final String COIN = "coin";
     public static final int NO_TIlE = 0;
     int[][] mTiles;
     int mHeight;

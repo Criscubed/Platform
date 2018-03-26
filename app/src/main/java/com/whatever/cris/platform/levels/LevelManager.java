@@ -1,5 +1,7 @@
 package com.whatever.cris.platform.levels;
 
+import android.graphics.PointF;
+
 import com.whatever.cris.platform.Entities.Entity;
 import com.whatever.cris.platform.Entities.EntityFactory;
 import com.whatever.cris.platform.Entities.Health;
@@ -14,17 +16,20 @@ import java.util.ArrayList;
 
 public class LevelManager {
 
+    public static final int RESPAWN_FRAMES = 90;
     public final ArrayList<Entity> mEntities = new ArrayList<>();
     public final ArrayList<Entity> mEntitiesToAdd = new ArrayList<>();
     public final ArrayList<Entity> mEntitiesToRemove = new ArrayList<>();
 
     public Player mPlayer = null;
+    public PointF playerSpawn = null;
     public Health h1 = null;
     public Health h2 = null;
     public Health h3 = null;
     public int totalHealth = 0;
     public int mLevelWidth = 0;
     public int mLevelHeight = 0;
+    public int mFramesUntilRespawn = 0;
 
     public  LevelManager(){
         loadMapAssets(new TestLevel());
@@ -32,18 +37,25 @@ public class LevelManager {
     }
 
     public void dropHealth(){
-        totalHealth--;
-        switch (totalHealth){
-            case 2:
-                h3.changeSprite(Health.DED);
-                break;
-            case 1:
-                h2.changeSprite(Health.DED);
-                break;
-            case 0:
-                h1.changeSprite(Health.DED);
-                break;
+        if(mFramesUntilRespawn == 0) {
+            totalHealth--;
+            switch (totalHealth) {
+                case 2:
+                    h1.changeSprite(Health.DED);
+                    break;
+                case 1:
+                    h2.changeSprite(Health.DED);
+                    break;
+                case 0:
+                    h3.changeSprite(Health.DED);
+                    respawnPlayer();
+                    break;
+            }
         }
+    }
+
+    private void respawnPlayer() {
+        mFramesUntilRespawn = RESPAWN_FRAMES;
     }
 
     public void update(final float deltaTime){
@@ -51,8 +63,34 @@ public class LevelManager {
         for(int i = 0; i < ic; i++){
             mEntities.get(i).update(deltaTime);
         }
+        if(mFramesUntilRespawn > 0){
+            mFramesUntilRespawn--;
+            if(mFramesUntilRespawn == 0){
+                restoreHealth(h1);
+            } else if(mFramesUntilRespawn == RESPAWN_FRAMES/3){
+                restoreHealth(h2);
+            } else if(mFramesUntilRespawn == RESPAWN_FRAMES/3 * 2){
+                mPlayer.setPosition(playerSpawn.x, playerSpawn.y);
+                restoreHealth(h3);
+            }
+        }
         checkCollisions();
         addAndRemoveEntities();
+    }
+    public void regenHealth() {
+        switch (totalHealth) {
+            case 2:
+                restoreHealth(h1);
+                break;
+            case 1:
+                restoreHealth(h2);
+                break;
+        }
+    }
+
+    private void restoreHealth(Health h) {
+        totalHealth++;
+        h.changeSprite(Health.HEART);
     }
 
     private void checkCollisions(){
@@ -110,6 +148,7 @@ public class LevelManager {
             }
         }
         mPlayer = findPlayerInstance();
+        playerSpawn = mPlayer.getPosition();
         h1 = new Health(mPlayer, 1, -1);
         h2 = new Health(mPlayer, 0, -1);
         h3 = new Health(mPlayer, -1, -1);
@@ -140,4 +179,5 @@ public class LevelManager {
         cleanup();
         BitmapPool.empty();
     }
+
 }

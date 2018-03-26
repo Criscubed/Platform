@@ -16,7 +16,9 @@ public class EntityFactory {
         } else if(sprite.equalsIgnoreCase(LevelData.ENEMY1)
                 || sprite.equalsIgnoreCase(LevelData.ENEMY2)) {
             e = new Enemy(sprite);
-        } else{
+        } else if(sprite.equalsIgnoreCase(LevelData.COIN)){
+            e = new Coin(sprite);
+        } else {
             e = new Entity(sprite);
         }
         e.setPosition(x, y);

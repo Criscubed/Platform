@@ -6,6 +6,7 @@ import android.graphics.PointF;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import com.whatever.cris.platform.Entities.Coin;
 import com.whatever.cris.platform.Entities.Entity;
 import com.whatever.cris.platform.Input.InputManager;
 import com.whatever.cris.platform.levels.LevelManager;
@@ -185,4 +186,11 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         mLevel.dropHealth();
     }
 
+    public void regenHealth() {
+        mLevel.regenHealth();
+    }
+
+    public void removeEntity(Entity e) {
+        mLevel.removeEntity(e);
+    }
 }

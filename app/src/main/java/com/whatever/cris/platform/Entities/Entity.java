@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -134,6 +135,11 @@ public class Entity {
     public void setPosition(final float x,final float y){
         this.x = x;
         this.y = y;
+    }
+
+    public PointF getPosition(){
+        PointF p = new PointF(x, y);
+        return p;
     }
 
 }
