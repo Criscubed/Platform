@@ -78,7 +78,7 @@ public class Player extends DynamicEntity {
             }
         }
         if(e instanceof Coin){
-            mEngine.regenHealth();
+            mEngine.collectedACoin();
         }
     }
 }

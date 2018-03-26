@@ -11,5 +11,11 @@
         android:layout_height="fill_parent"/>
 
     <include layout="@layout/virtual_joystick" />
+
+    <TextView
+        android:id="@+id/collectedCoins"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/collected_coins" />
 </FrameLayout>
 

@@ -24,6 +24,8 @@ public class Viewport {
     private float mMetersToShowY;
     private float mHalfDistX; //cached value (0.5*FOV)
     private float mHalfDistY;
+    private float boundX;
+    private float boundY;
     private final static float BUFFER = 2f; //overdraw, to avoid visual gaps
 
     public Viewport(final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY){
@@ -34,6 +36,12 @@ public class Viewport {
         mLookAt.x = 0.0f;
         mLookAt.y = 0.0f;
         setMetersToShow(metersToShowX, metersToShowY);
+        setBounds();
+    }
+
+    private void setBounds() {
+        boundX = mMetersToShowX * 0.5f;
+        boundY = mMetersToShowY * 0.5f;
     }
 
     //setMetersToShow calculates the number of physical pixels per meters
@@ -59,8 +67,16 @@ public class Viewport {
     }
 
     public void lookAt(final float x, final float y){
-        mLookAt.x = x;
-        mLookAt.y = y;
+        if(x < boundX){
+            mLookAt.x = boundX;
+        } else {
+            mLookAt.x = x;
+        }
+        if(y > boundY){
+            mLookAt.y = boundY;
+        } else {
+            mLookAt.y = y;
+        }
     }/*
     public void lookAt(final GameObject obj){
         lookAt(obj.centerX(), obj.centerY());

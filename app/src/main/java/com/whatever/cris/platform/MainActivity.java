@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.whatever.cris.platform.Input.InputManager;
 import com.whatever.cris.platform.Input.TouchController;
@@ -14,6 +15,7 @@ import com.whatever.cris.platform.Input.VirtualJoystick;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    public static String coinString;
     private Game mGame;
     public Point size;
 
@@ -25,7 +27,10 @@ public class MainActivity extends AppCompatActivity {
         GameView view = (GameView) findViewById(R.id.gameView);
         InputManager input = new VirtualJoystick(findViewById(R.id.virtual_joystick));
         mGame = new Game(this, view, input);
-
+        TextView t = (TextView) findViewById(R.id.collectedCoins);
+        coinString = getString(R.string.collected_coins);
+        t.setText(coinString + 0 + "/" + mGame.getTotalCoins());
+        mGame.setTextView(t);
     }
 
     private void getScreenWidthAndHeight() {

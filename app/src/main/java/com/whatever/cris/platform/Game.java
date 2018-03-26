@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.widget.TextView;
 
 import com.whatever.cris.platform.Entities.Coin;
 import com.whatever.cris.platform.Entities.Entity;
@@ -36,6 +37,7 @@ public class Game implements Runnable, SurfaceHolder.Callback {
     private ArrayList<Entity> mVisibleEntities = new ArrayList<>();
     private InputManager mControls = null;
     PointF mCameraPos = new PointF(0f, 0f);
+    private TextView mTextView;
 
     public Game(Context context, final GameView view, final InputManager inputs) {
         mView = view;
@@ -52,7 +54,7 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         holder.setFixedSize((int)(screenWidth),(int)(screenHeight));
         mCamera = new Viewport(screenWidth, screenHeight,
                 METERS_TO_SHOW_X, METERS_TO_SHOW_y);
-       loadLevel();
+        loadLevel();
         Log.d(TAG, "Game Created!");
     }
 
@@ -114,6 +116,9 @@ public class Game implements Runnable, SurfaceHolder.Callback {
     private void render(ArrayList<Entity> visibleSet, final Viewport camera){
         mView.render(visibleSet, camera);
     }
+
+
+
     private void buildVisibleSet(){
         mVisibleEntities.clear();
         for(final Entity e : mLevel.mEntities){
@@ -186,11 +191,32 @@ public class Game implements Runnable, SurfaceHolder.Callback {
         mLevel.dropHealth();
     }
 
-    public void regenHealth() {
-        mLevel.regenHealth();
-    }
 
     public void removeEntity(Entity e) {
         mLevel.removeEntity(e);
+    }
+
+    public void collectedACoin() {
+        mLevel.regenHealth();
+        mLevel.collectedACoin();
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTextView.setText(MainActivity.coinString + getCollectedCoins() + "/" + getTotalCoins());
+            }
+        });
+
+    }
+
+    public int getTotalCoins() {
+        return mLevel.numberOfCoins;
+    }
+
+    private int getCollectedCoins() {
+        return mLevel.mCollectedCoins;
+    }
+
+    public void setTextView(TextView t) {
+        mTextView = t;
     }
 }

@@ -2,6 +2,7 @@ package com.whatever.cris.platform.levels;
 
 import android.graphics.PointF;
 
+import com.whatever.cris.platform.Entities.Coin;
 import com.whatever.cris.platform.Entities.Entity;
 import com.whatever.cris.platform.Entities.EntityFactory;
 import com.whatever.cris.platform.Entities.Health;
@@ -30,32 +31,12 @@ public class LevelManager {
     public int mLevelWidth = 0;
     public int mLevelHeight = 0;
     public int mFramesUntilRespawn = 0;
+    public int numberOfCoins = 0;
+    public int mCollectedCoins = 0;
 
     public  LevelManager(){
         loadMapAssets(new TestLevel());
         totalHealth = 3;
-    }
-
-    public void dropHealth(){
-        if(mFramesUntilRespawn == 0) {
-            totalHealth--;
-            switch (totalHealth) {
-                case 2:
-                    h1.changeSprite(Health.DED);
-                    break;
-                case 1:
-                    h2.changeSprite(Health.DED);
-                    break;
-                case 0:
-                    h3.changeSprite(Health.DED);
-                    respawnPlayer();
-                    break;
-            }
-        }
-    }
-
-    private void respawnPlayer() {
-        mFramesUntilRespawn = RESPAWN_FRAMES;
     }
 
     public void update(final float deltaTime){
@@ -76,21 +57,6 @@ public class LevelManager {
         }
         checkCollisions();
         addAndRemoveEntities();
-    }
-    public void regenHealth() {
-        switch (totalHealth) {
-            case 2:
-                restoreHealth(h1);
-                break;
-            case 1:
-                restoreHealth(h2);
-                break;
-        }
-    }
-
-    private void restoreHealth(Health h) {
-        totalHealth++;
-        h.changeSprite(Health.HEART);
     }
 
     private void checkCollisions(){
@@ -144,7 +110,11 @@ public class LevelManager {
                     continue;
                 }
                 final String spriteName = data.getSpriteName(tileType);
-                mEntities.add(EntityFactory.makeEntity(spriteName, x, y));
+                Entity e = EntityFactory.makeEntity(spriteName, x, y);
+                mEntities.add(e);
+                if(e instanceof Coin){
+                    numberOfCoins++;
+                }
             }
         }
         mPlayer = findPlayerInstance();
@@ -180,4 +150,46 @@ public class LevelManager {
         BitmapPool.empty();
     }
 
+    public void regenHealth() {
+        switch (totalHealth) {
+            case 2:
+                restoreHealth(h1);
+                break;
+            case 1:
+                restoreHealth(h2);
+                break;
+        }
+    }
+
+    public void dropHealth(){
+        if(mFramesUntilRespawn == 0) {
+            totalHealth--;
+            switch (totalHealth) {
+                case 2:
+                    h1.changeSprite(Health.DED);
+                    break;
+                case 1:
+                    h2.changeSprite(Health.DED);
+                    break;
+                case 0:
+                    h3.changeSprite(Health.DED);
+                    respawnPlayer();
+                    break;
+            }
+        }
+    }
+
+    private void respawnPlayer() {
+        mFramesUntilRespawn = RESPAWN_FRAMES;
+    }
+
+    private void restoreHealth(Health h) {
+        totalHealth++;
+        h.changeSprite(Health.HEART);
+    }
+
+    public void collectedACoin() {
+        mCollectedCoins++;
+
+    }
 }
